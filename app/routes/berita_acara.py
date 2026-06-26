@@ -1,18 +1,23 @@
-from fastapi import APIRouter, Request, Depends, Form, HTTPException
-from fastapi.responses import RedirectResponse, StreamingResponse, Response
+from fastapi import APIRouter, Request, Depends, Form, HTTPException, UploadFile, File
+from fastapi.responses import RedirectResponse, StreamingResponse, Response, JSONResponse
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import (
-    ReturnMaterial, BeritaAcara, BeritaAcaraItem,
+    ReturnMaterial, BeritaAcara, BeritaAcaraItem, BeritaAcaraPhoto,
 )
 from fastapi.templating import Jinja2Templates
 from app.templates import TEMPLATE_DIR
 from datetime import datetime
 from openpyxl import load_workbook
-import io, os
+import io, os, uuid
 
 router = APIRouter()
 templates = Jinja2Templates(directory=TEMPLATE_DIR)
+
+BA_UPLOAD_DIR = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), "uploads", "ba"
+)
+os.makedirs(BA_UPLOAD_DIR, exist_ok=True)
 
 TEMPLATE_PATH = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
@@ -163,6 +168,53 @@ async def create_berita_acara(
 
     db.commit()
     return RedirectResponse(f"/berita-acara/{ba.id}", status_code=303)
+
+
+@router.post("/{ba_id}/photo/upload")
+async def upload_photo(ba_id: int, photo: UploadFile = File(...), db: Session = Depends(get_db)):
+    ba = db.query(BeritaAcara).filter(BeritaAcara.id == ba_id).first()
+    if not ba:
+        raise HTTPException(404, "Berita Acara not found")
+
+    ext = os.path.splitext(photo.filename)[1].lower()
+    if ext not in (".jpg", ".jpeg", ".png", ".gif", ".webp"):
+        raise HTTPException(400, "File harus gambar (jpg/png/gif/webp)")
+
+    filename = f"{uuid.uuid4().hex}{ext}"
+    filepath = os.path.join(BA_UPLOAD_DIR, filename)
+    content = await photo.read()
+    with open(filepath, "wb") as f:
+        f.write(content)
+
+    bp = BeritaAcaraPhoto(
+        berita_acara_id=ba_id,
+        filename=filename,
+        original_name=photo.filename,
+    )
+    db.add(bp)
+    db.commit()
+    db.refresh(bp)
+
+    return JSONResponse({
+        "id": bp.id,
+        "url": f"/uploads/ba/{filename}",
+        "name": photo.filename,
+    })
+
+
+@router.post("/{ba_id}/photo/{photo_id}/delete")
+async def delete_photo(ba_id: int, photo_id: int, db: Session = Depends(get_db)):
+    photo = db.query(BeritaAcaraPhoto).filter(
+        BeritaAcaraPhoto.id == photo_id,
+        BeritaAcaraPhoto.berita_acara_id == ba_id,
+    ).first()
+    if photo:
+        filepath = os.path.join(BA_UPLOAD_DIR, photo.filename)
+        if os.path.exists(filepath):
+            os.remove(filepath)
+        db.delete(photo)
+        db.commit()
+    return Response(content="", media_type="text/html")
 
 
 @router.get("/{ba_id}")

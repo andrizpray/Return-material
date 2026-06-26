@@ -107,6 +107,9 @@ class BeritaAcara(Base):
     items = relationship(
         "BeritaAcaraItem", back_populates="berita_acara", cascade="all, delete-orphan"
     )
+    photos = relationship(
+        "BeritaAcaraPhoto", back_populates="berita_acara", cascade="all, delete-orphan"
+    )
 
 
 class BeritaAcaraItem(Base):
@@ -127,6 +130,20 @@ class BeritaAcaraItem(Base):
 
     berita_acara = relationship("BeritaAcara", back_populates="items")
     return_material = relationship("ReturnMaterial")
+
+
+class BeritaAcaraPhoto(Base):
+    __tablename__ = "berita_acara_photos"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    berita_acara_id = Column(
+        Integer, ForeignKey("berita_acara.id", ondelete="CASCADE"), nullable=False
+    )
+    filename = Column(String(255), nullable=False)
+    original_name = Column(String(255), nullable=True)
+    uploaded_at = Column(DateTime, default=datetime.utcnow)
+
+    berita_acara = relationship("BeritaAcara", back_populates="photos")
 
 
 class User(Base):
