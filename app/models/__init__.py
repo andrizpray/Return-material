@@ -119,6 +119,8 @@ class BeritaAcaraItem(Base):
     return_id = Column(
         Integer, ForeignKey("return_materials.id", ondelete="SET NULL"), nullable=True
     )
+    lot_id = Column(String(100), nullable=True)
+    qty = Column(DECIMAL(10, 2), nullable=True)
     jenis_barang = Column(String(200), nullable=True)
     rew_id = Column(String(100), nullable=True)
     keterangan = Column(Text, nullable=True)

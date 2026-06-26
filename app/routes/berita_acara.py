@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request, Depends, Form, HTTPException
-from fastapi.responses import RedirectResponse, StreamingResponse
+from fastapi.responses import RedirectResponse, StreamingResponse, Response
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import (
@@ -16,7 +16,8 @@ templates = Jinja2Templates(directory=TEMPLATE_DIR)
 
 TEMPLATE_PATH = os.path.join(
     os.path.dirname(os.path.dirname(__file__)),
-    "templates", "berita_acara_template.xlsx",
+    "templates",
+    "berita_acara_template.xlsx",
 )
 
 
@@ -44,6 +45,17 @@ def _generate_nomor_bap(dt: datetime) -> str:
     return f"BAP/RTN/{day}/{month}/{year_short}"
 
 
+def _render_list_fragment(db: Session) -> str:
+    """Render berita acara list as HTML fragment (no base.html wrapper)."""
+    items = (
+        db.query(BeritaAcara)
+        .order_by(BeritaAcara.created_at.desc())
+        .all()
+    )
+    tpl = templates.get_template("pages/berita_acara_list.html")
+    return tpl.render({"active_page": "berita_acara", "items": items})
+
+
 @router.get("/")
 async def list_berita_acara(request: Request, db: Session = Depends(get_db)):
     items = (
@@ -64,17 +76,12 @@ async def create_form(
     return_ids: str = "",
     db: Session = Depends(get_db),
 ):
-    returns = db.query(ReturnMaterial).all()
     now = datetime.now()
-    selected_ids = [int(x) for x in return_ids.split(",") if x.strip().isdigit()]
-
     return templates.TemplateResponse(
         request,
         "pages/berita_acara_form.html",
         {
             "active_page": "berita_acara",
-            "returns": returns,
-            "selected_ids": selected_ids,
             "now": now,
             "default_nomor": _generate_nomor_bap(now),
         },
@@ -101,8 +108,9 @@ async def create_berita_acara(
     karu_delivery: str = Form(""),
     kabag_scm: str = Form(""),
     sopir_nopol: str = Form(""),
-    # Items (multi-value)
-    return_ids_raw: list[str] = Form([]),
+    # Items (multi-value) — manual input
+    lot_ids: list[str] = Form([]),
+    qtys: list[str] = Form([]),
     jenis_barangs: list[str] = Form([]),
     rew_ids: list[str] = Form([]),
     keterangans: list[str] = Form([]),
@@ -130,16 +138,26 @@ async def create_berita_acara(
     db.add(ba)
     db.flush()
 
-    valid_ids = [int(x) for x in return_ids_raw if x.strip().isdigit()]
-    for i, rid in enumerate(valid_ids):
-        if not rid:
-            continue
+    for i in range(len(lot_ids)):
+        lot = lot_ids[i].strip() if i < len(lot_ids) else ""
+        qty_str = qtys[i].strip() if i < len(qtys) else ""
+        if not lot and not qty_str:
+            continue  # skip empty rows
+
+        qty_val = None
+        if qty_str:
+            try:
+                qty_val = float(qty_str)
+            except ValueError:
+                pass
+
         item = BeritaAcaraItem(
             berita_acara_id=ba.id,
-            return_id=rid,
-            jenis_barang=jenis_barangs[i] if i < len(jenis_barangs) else None,
-            rew_id=rew_ids[i] if i < len(rew_ids) else None,
-            keterangan=keterangans[i] if i < len(keterangans) else None,
+            lot_id=lot or None,
+            qty=qty_val,
+            jenis_barang=jenis_barangs[i] if i < len(jenis_barangs) and jenis_barangs[i].strip() else None,
+            rew_id=rew_ids[i] if i < len(rew_ids) and rew_ids[i].strip() else None,
+            keterangan=keterangans[i] if i < len(keterangans) and keterangans[i].strip() else None,
         )
         db.add(item)
 
@@ -169,7 +187,6 @@ async def download_excel(ba_id: int, db: Session = Depends(get_db)):
     ws = wb["DOCK"]
 
     # === Clear stale template data (Section II - rows 14-28) ===
-    # Unmerge cells in this range first, then clear
     merges_to_remove = [mc for mc in list(ws.merged_cells.ranges)
                         if mc.min_row >= 14 and mc.max_row <= 28]
     for mc in merges_to_remove:
@@ -206,13 +223,16 @@ async def download_excel(ba_id: int, db: Session = Depends(get_db)):
         ws.cell(row=row, column=2, value=item.jenis_barang or "")  # Jenis Barang
         # D = Rew ID, E = Lot ID
         ws.cell(row=row, column=4, value=item.rew_id or "")
-        lot_id = ""
-        if item.return_material:
+        # Use item.lot_id first, fallback to linked return_material
+        lot_id = item.lot_id or ""
+        if not lot_id and item.return_material:
             lot_id = item.return_material.lot_ref or ""
         ws.cell(row=row, column=5, value=lot_id)
-        # F = Qty Kg
+        # F = Qty Kg — use item.qty first, fallback to linked return_material
         qty = 0
-        if item.return_material and item.return_material.qty:
+        if item.qty:
+            qty = float(item.qty)
+        elif item.return_material and item.return_material.qty:
             qty = float(item.return_material.qty)
         ws.cell(row=row, column=6, value=qty if qty else "")
         total_qty += qty
@@ -223,7 +243,7 @@ async def download_excel(ba_id: int, db: Session = Depends(get_db)):
             keterangan = item.return_material.condition or item.return_material.note or ""
         ws.cell(row=row, column=7, value=keterangan)
 
-    # TOTAL row — overwrite template's existing total row
+    # TOTAL row
     if ba.items:
         total_row = start_row + len(ba.items)
         ws.cell(row=total_row, column=2, value="TOTAL")
@@ -259,4 +279,7 @@ async def delete_berita_acara(ba_id: int, db: Session = Depends(get_db)):
     if ba:
         db.delete(ba)
         db.commit()
-    return RedirectResponse("/berita-acara/", status_code=303)
+    # Return list fragment for HTMX swap (no base.html wrapper)
+    html = _render_list_fragment(db)
+    return Response(content=html, media_type="text/html",
+                    headers={"HX-Redirect": "/berita-acara/"})

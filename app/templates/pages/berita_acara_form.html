@@ -89,26 +89,17 @@
         </div>
         <div class="px-6 py-4">
             <div id="items-container" class="space-y-3">
-                <!-- Default: show all pending returns if no selection -->
-                {% set show_returns = [] %}
-                {% for ret in returns %}
-                    {% if ret.id in selected_ids or not selected_ids %}
-                        {% if show_returns.append(ret) %}{% endif %}
-                    {% endif %}
-                {% endfor %}
-
-                {% for ret in show_returns[:5] %}
+                <!-- Default: 1 empty row -->
                 <div class="item-row grid grid-cols-12 gap-2 items-end border-b border-gray-100 pb-3">
-                    <input type="hidden" name="return_ids" value="{{ ret.id }}"/>
                     <div class="col-span-3">
                         <label class="block text-xs text-gray-500 mb-1">Lot ID</label>
-                        <input type="text" value="{{ ret.lot_ref }}" readonly
-                               class="w-full rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs text-gray-600"/>
+                        <input type="text" name="lot_ids" placeholder="JR500..."
+                               class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
                     </div>
                     <div class="col-span-2">
                         <label class="block text-xs text-gray-500 mb-1">Qty (Kg)</label>
-                        <input type="text" value="{{ ret.qty }}" readonly
-                               class="w-full rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs text-gray-600"/>
+                        <input type="number" step="0.01" name="qtys" placeholder="0"
+                               class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
                     </div>
                     <div class="col-span-2">
                         <label class="block text-xs text-gray-500 mb-1">Jenis Barang</label>
@@ -122,8 +113,7 @@
                     </div>
                     <div class="col-span-2">
                         <label class="block text-xs text-gray-500 mb-1">Keterangan</label>
-                        <input type="text" name="keterangans" value="{{ ret.condition or '' }}"
-                               placeholder="Gulungan tidak rata..."
+                        <input type="text" name="keterangans" placeholder="Gulungan tidak rata..."
                                class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
                     </div>
                     <div class="col-span-1">
@@ -135,13 +125,6 @@
                         </button>
                     </div>
                 </div>
-                {% endfor %}
-
-                {% if not show_returns %}
-                <p class="text-sm text-gray-400 text-center py-4">
-                    Tidak ada return yang dipilih. <a href="/returns/" class="text-primary-600 hover:underline">Buat return dulu</a>.
-                </p>
-                {% endif %}
             </div>
         </div>
     </div>
@@ -192,31 +175,20 @@
 </form>
 
 <script>
-// Add blank item row
 document.getElementById('add-item-btn').addEventListener('click', function() {
     const container = document.getElementById('items-container');
-    // Remove "no items" message if present
-    const emptyMsg = container.querySelector('p');
-    if (emptyMsg) emptyMsg.remove();
-
     const row = document.createElement('div');
     row.className = 'item-row grid grid-cols-12 gap-2 items-end border-b border-gray-100 pb-3';
     row.innerHTML = `
-        <input type="hidden" name="return_ids" value=""/>
         <div class="col-span-3">
             <label class="block text-xs text-gray-500 mb-1">Lot ID</label>
-            <select name="_return_id_select" onchange="this.closest('.item-row').querySelector('input[name=return_ids]').value=this.value"
-                    class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500">
-                <option value="">Pilih return...</option>
-                {% for ret in returns %}
-                <option value="{{ ret.id }}">{{ ret.lot_ref }} ({{ ret.qty }} Kg)</option>
-                {% endfor %}
-            </select>
+            <input type="text" name="lot_ids" placeholder="JR500..."
+                   class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
         </div>
         <div class="col-span-2">
             <label class="block text-xs text-gray-500 mb-1">Qty (Kg)</label>
-            <input type="text" readonly placeholder="auto"
-                   class="w-full rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs text-gray-600"/>
+            <input type="number" step="0.01" name="qtys" placeholder="0"
+                   class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
         </div>
         <div class="col-span-2">
             <label class="block text-xs text-gray-500 mb-1">Jenis Barang</label>
