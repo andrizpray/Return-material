@@ -8,79 +8,79 @@
 <form method="POST" action="/berita-acara/create" class="space-y-6 max-w-4xl">
 
     <!-- Section I: Info Dokumen -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Section I — Info Dokumen</h3>
+    <div class="bg-white rounded-xl border border-slate-200">
+        <div class="px-6 py-4 border-b border-slate-200">
+            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Section I — Info Dokumen</h3>
         </div>
-        <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nomor BAP <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Nomor BAP <span class="text-red-500">*</span></label>
                 <input type="text" name="nomor_bap" value="{{ default_nomor }}" required
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                       class="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Tanggal <span class="text-red-500">*</span></label>
                 <input type="date" name="tanggal" value="{{ now.strftime('%Y-%m-%d') }}" required
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                       class="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
             </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Hal</label>
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Hal</label>
                 <input type="text" name="hal" value="Broke / Return / Damage Product / Out Spec / Etc"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                       class="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Ditujukan Kepada</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Ditujukan Kepada</label>
                 <input type="text" name="ditujukan_kepada" value="QC"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                       class="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">CC</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">CC</label>
                 <input type="text" name="cc" placeholder="-"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                       class="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
             </div>
         </div>
     </div>
 
     <!-- Section: Info Customer & SJ -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Info Customer & Surat Jalan</h3>
+    <div class="bg-white rounded-xl border border-slate-200">
+        <div class="px-6 py-4 border-b border-slate-200">
+            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Info Customer & Surat Jalan</h3>
         </div>
-        <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="px-6 py-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Customer <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">Nama Customer <span class="text-red-500">*</span></label>
                 <input type="text" name="customer_name" required placeholder="PT Nama Customer"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                       class="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">No. SJ / Tanggal Kirim</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">No. SJ / Tanggal Kirim</label>
                 <div class="flex gap-2">
                     <input type="text" name="no_sj" placeholder="SHPRL..."
-                           class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                           class="flex-1 h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
                     <input type="date" name="tanggal_sj"
-                           class="w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                           class="w-40 h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
                 </div>
             </div>
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">No. SJ Return</label>
+                <label class="block text-sm font-medium text-slate-700 mb-1">No. SJ Return</label>
                 <input type="text" name="no_sj_return" placeholder="-"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                       class="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
             </div>
-            <div class="md:col-span-2">
-                <label class="block text-sm font-medium text-gray-700 mb-1">Alamat Customer</label>
+            <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-slate-700 mb-1">Alamat Customer</label>
                 <textarea name="customer_address" rows="2"
-                          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"
+                          class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition resize-none"
                           placeholder="Alamat lengkap customer..."></textarea>
             </div>
         </div>
     </div>
 
     <!-- Section III: Items -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Section III — Data Produk</h3>
+    <div class="bg-white rounded-xl border border-slate-200">
+        <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Section III — Data Produk</h3>
             <button type="button" id="add-item-btn"
-                    class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-700">
+                    class="inline-flex items-center gap-1.5 text-sm font-medium text-brand-600 hover:text-brand-700 px-3 py-1.5 rounded-lg hover:bg-brand-50 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
@@ -90,35 +90,35 @@
         <div class="px-6 py-4">
             <div id="items-container" class="space-y-3">
                 <!-- Default: 1 empty row -->
-                <div class="item-row grid grid-cols-12 gap-2 items-end border-b border-gray-100 pb-3">
-                    <div class="col-span-3">
-                        <label class="block text-xs text-gray-500 mb-1">Lot ID</label>
+                <div class="item-row grid grid-cols-1 sm:grid-cols-12 gap-3 items-end border-b border-slate-100 pb-3">
+                    <div class="sm:col-span-3">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Lot ID</label>
                         <input type="text" name="lot_ids" placeholder="JR500..."
-                               class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                               class="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
                     </div>
-                    <div class="col-span-2">
-                        <label class="block text-xs text-gray-500 mb-1">Qty (Kg)</label>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Qty (Kg)</label>
                         <input type="number" step="0.01" name="qtys" placeholder="0"
-                               class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                               class="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
                     </div>
-                    <div class="col-span-2">
-                        <label class="block text-xs text-gray-500 mb-1">Jenis Barang</label>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Jenis Barang</label>
                         <input type="text" name="jenis_barangs" placeholder="MP150 - 1250"
-                               class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                               class="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
                     </div>
-                    <div class="col-span-2">
-                        <label class="block text-xs text-gray-500 mb-1">Rew ID</label>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Rew ID</label>
                         <input type="text" name="rew_ids" placeholder="N.xx.xxxx.xxxx"
-                               class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                               class="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
                     </div>
-                    <div class="col-span-2">
-                        <label class="block text-xs text-gray-500 mb-1">Keterangan</label>
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">Keterangan</label>
                         <input type="text" name="keterangans" placeholder="Gulungan tidak rata..."
-                               class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                               class="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
                     </div>
-                    <div class="col-span-1">
+                    <div class="sm:col-span-1 flex sm:justify-end">
                         <button type="button" onclick="this.closest('.item-row').remove()"
-                                class="text-red-400 hover:text-red-600 p-1">
+                                class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                             </svg>
@@ -130,30 +130,30 @@
     </div>
 
     <!-- Section IV: Tanda Tangan -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div class="px-6 py-4 border-b border-gray-200">
-            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Section IV — Tanda Tangan</h3>
+    <div class="bg-white rounded-xl border border-slate-200">
+        <div class="px-6 py-4 border-b border-slate-200">
+            <h3 class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Section IV — Tanda Tangan</h3>
         </div>
-        <div class="px-6 py-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-                <label class="block text-xs text-gray-500 mb-1">Admin Delivery</label>
+                <label class="block text-xs font-medium text-slate-500 mb-1">Admin Delivery</label>
                 <input type="text" name="admin_delivery"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                       class="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
             </div>
             <div>
-                <label class="block text-xs text-gray-500 mb-1">Karu Delivery</label>
+                <label class="block text-xs font-medium text-slate-500 mb-1">Karu Delivery</label>
                 <input type="text" name="karu_delivery"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                       class="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
             </div>
             <div>
-                <label class="block text-xs text-gray-500 mb-1">Kabag SCM</label>
+                <label class="block text-xs font-medium text-slate-500 mb-1">Kabag SCM</label>
                 <input type="text" name="kabag_scm"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                       class="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
             </div>
             <div>
-                <label class="block text-xs text-gray-500 mb-1">Sopir / Nopol</label>
+                <label class="block text-xs font-medium text-slate-500 mb-1">Sopir / Nopol</label>
                 <input type="text" name="sopir_nopol" placeholder="LNI - IDI / D 9736 AI"
-                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                       class="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
             </div>
         </div>
     </div>
@@ -161,11 +161,11 @@
     <!-- Actions -->
     <div class="flex items-center justify-end gap-3">
         <a href="/berita-acara/"
-           class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors">
+           class="px-4 py-2 rounded-lg text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 transition-colors">
             Batal
         </a>
         <button type="submit"
-                class="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">
+                class="inline-flex items-center gap-2 bg-brand-500 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-brand-600 transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
             </svg>
@@ -178,36 +178,36 @@
 document.getElementById('add-item-btn').addEventListener('click', function() {
     const container = document.getElementById('items-container');
     const row = document.createElement('div');
-    row.className = 'item-row grid grid-cols-12 gap-2 items-end border-b border-gray-100 pb-3';
+    row.className = 'item-row grid grid-cols-1 sm:grid-cols-12 gap-3 items-end border-b border-slate-100 pb-3';
     row.innerHTML = `
-        <div class="col-span-3">
-            <label class="block text-xs text-gray-500 mb-1">Lot ID</label>
+        <div class="sm:col-span-3">
+            <label class="block text-xs font-medium text-slate-500 mb-1">Lot ID</label>
             <input type="text" name="lot_ids" placeholder="JR500..."
-                   class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                   class="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
         </div>
-        <div class="col-span-2">
-            <label class="block text-xs text-gray-500 mb-1">Qty (Kg)</label>
+        <div class="sm:col-span-2">
+            <label class="block text-xs font-medium text-slate-500 mb-1">Qty (Kg)</label>
             <input type="number" step="0.01" name="qtys" placeholder="0"
-                   class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                   class="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
         </div>
-        <div class="col-span-2">
-            <label class="block text-xs text-gray-500 mb-1">Jenis Barang</label>
+        <div class="sm:col-span-2">
+            <label class="block text-xs font-medium text-slate-500 mb-1">Jenis Barang</label>
             <input type="text" name="jenis_barangs" placeholder="MP150 - 1250"
-                   class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                   class="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
         </div>
-        <div class="col-span-2">
-            <label class="block text-xs text-gray-500 mb-1">Rew ID</label>
+        <div class="sm:col-span-2">
+            <label class="block text-xs font-medium text-slate-500 mb-1">Rew ID</label>
             <input type="text" name="rew_ids" placeholder="N.xx.xxxx.xxxx"
-                   class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                   class="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
         </div>
-        <div class="col-span-2">
-            <label class="block text-xs text-gray-500 mb-1">Keterangan</label>
+        <div class="sm:col-span-2">
+            <label class="block text-xs font-medium text-slate-500 mb-1">Keterangan</label>
             <input type="text" name="keterangans" placeholder="Gulungan tidak rata..."
-                   class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                   class="w-full h-9 rounded-lg border border-slate-300 px-2.5 text-xs focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition"/>
         </div>
-        <div class="col-span-1">
+        <div class="sm:col-span-1 flex sm:justify-end">
             <button type="button" onclick="this.closest('.item-row').remove()"
-                    class="text-red-400 hover:text-red-600 p-1">
+                    class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                 </svg>
