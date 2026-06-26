@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% set active_page = 'returns' %}
+
+{% block title %}Returns - Return Material Manager{% endblock %}
+
+{% block page_title %}Return List{% endblock %}
+
+{% block content %}
+<div class="space-y-4">
+    <!-- Header + New Return Button -->
+    <div class="flex items-center justify-between">
+        <p class="text-sm text-gray-500">
+            {{ total }} return{{ 's' if total != 1 }} total
+        </p>
+        <button
+            hx-get="/returns/create"
+            hx-target="#page-content"
+            hx-swap="innerHTML"
+            class="inline-flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
+        >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            New Return
+        </button>
+    </div>
+
+    <!-- Filter Bar -->
+    <form
+        hx-get="/returns/"
+        hx-target="#page-content"
+        hx-swap="innerHTML"
+        hx-trigger="change from:select, submit"
+        class="bg-white rounded-lg shadow-sm border border-gray-200 p-4"
+    >
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <!-- Search by lot_ref -->
+            <div>
+                <label for="search" class="block text-xs font-medium text-gray-500 mb-1">Lot Reference</label>
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    value="{{ search or '' }}"
+                    placeholder="Search lot ref..."
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"
+                />
+            </div>
+
+            <!-- Status Filter -->
+            <div>
+                <label for="status_filter" class="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                <select
+                    id="status_filter"
+                    name="status_filter"
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"
+                >
+                    <option value="">All Statuses</option>
+                    <option value="pending" {{ 'selected' if status_filter == 'pending' }}>Pending</option>
+                    <option value="approved" {{ 'selected' if status_filter == 'approved' }}>Approved</option>
+                    <option value="rejected" {{ 'selected' if status_filter == 'rejected' }}>Rejected</option>
+                    <option value="processed" {{ 'selected' if status_filter == 'processed' }}>Processed</option>
+                </select>
+            </div>
+
+            <!-- Reason Filter -->
+            <div>
+                <label for="reason_filter" class="block text-xs font-medium text-gray-500 mb-1">Reason</label>
+                <select
+                    id="reason_filter"
+                    name="reason_filter"
+                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"
+                >
+                    <option value="">All Reasons</option>
+                    {% for reason in reasons %}
+                    <option value="{{ reason.id }}" {{ 'selected' if reason_filter == reason.id|string }}>{{ reason.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Search Button -->
+            <div class="flex items-end">
+                <button
+                    type="submit"
+                    class="w-full bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
+                >
+                    Search
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Data Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Lot Ref</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Qty</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Reason</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Condition</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
+                        <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% if returns %}
+                        {% for ret in returns %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-4 py-3 text-sm font-mono font-medium text-gray-900">{{ ret.lot_ref }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">{{ ret.qty }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">{{ ret.reason.name }}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">{{ ret.condition or '-' }}</td>
+                            <td class="px-4 py-3">
+                                {% if ret.status == 'pending' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Pending</span>
+                                {% elif ret.status == 'approved' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Approved</span>
+                                {% elif ret.status == 'rejected' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Rejected</span>
+                                {% elif ret.status == 'processed' %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Processed</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-500">{{ ret.created_at.strftime('%d %b %Y %H:%M') }}</td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <a
+                                        href="/returns/{{ ret.id }}"
+                                        class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium text-primary-700 hover:bg-primary-50 transition-colors"
+                                        title="View"
+                                    >
+                                        View
+                                    </a>
+                                    {% if ret.status == 'pending' %}
+                                    <form hx-post="/returns/{{ ret.id }}/status" hx-target="#page-content" hx-swap="innerHTML" class="inline">
+                                        <input type="hidden" name="status" value="approved"/>
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium text-green-700 hover:bg-green-50 transition-colors"
+                                            title="Approve"
+                                        >
+                                            Approve
+                                        </button>
+                                    </form>
+                                    <form hx-post="/returns/{{ ret.id }}/status" hx-target="#page-content" hx-swap="innerHTML" class="inline">
+                                        <input type="hidden" name="status" value="rejected"/>
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium text-red-700 hover:bg-red-50 transition-colors"
+                                            title="Reject"
+                                        >
+                                            Reject
+                                        </button>
+                                    </form>
+                                    {% elif ret.status == 'approved' %}
+                                    <form hx-post="/returns/{{ ret.id }}/status" hx-target="#page-content" hx-swap="innerHTML" class="inline">
+                                        <input type="hidden" name="status" value="processed"/>
+                                        <button
+                                            type="submit"
+                                            class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium text-blue-700 hover:bg-blue-50 transition-colors"
+                                            title="Process"
+                                        >
+                                            Process
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="px-4 py-12 text-center text-sm text-gray-500">
+                                No returns found.
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if total_pages > 1 %}
+        <div class="bg-gray-50 border-t border-gray-200 px-4 py-3 flex items-center justify-between">
+            <p class="text-sm text-gray-600">
+                Page {{ page }} of {{ total_pages }}
+            </p>
+            <div class="flex items-center gap-1">
+                {% if page > 1 %}
+                <a
+                    href="/returns/?page={{ page - 1 }}&search={{ search or '' }}&status_filter={{ status_filter or '' }}&reason_filter={{ reason_filter or '' }}"
+                    class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                    hx-get="/returns/?page={{ page - 1 }}&search={{ search or '' }}&status_filter={{ status_filter or '' }}&reason_filter={{ reason_filter or '' }}"
+                    hx-target="#page-content"
+                    hx-swap="innerHTML"
+                >
+                    Previous
+                </a>
+                {% endif %}
+
+                {% for p in range(1, total_pages + 1) %}
+                {% if p == page %}
+                <span class="px-3 py-1.5 rounded-md text-sm font-medium text-white bg-primary-600">{{ p }}</span>
+                {% else %}
+                <a
+                    href="/returns/?page={{ p }}&search={{ search or '' }}&status_filter={{ status_filter or '' }}&reason_filter={{ reason_filter or '' }}"
+                    class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                    hx-get="/returns/?page={{ p }}&search={{ search or '' }}&status_filter={{ status_filter or '' }}&reason_filter={{ reason_filter or '' }}"
+                    hx-target="#page-content"
+                    hx-swap="innerHTML"
+                >
+                    {{ p }}
+                </a>
+                {% endif %}
+                {% endfor %}
+
+                {% if page < total_pages %}
+                <a
+                    href="/returns/?page={{ page + 1 }}&search={{ search or '' }}&status_filter={{ status_filter or '' }}&reason_filter={{ reason_filter or '' }}"
+                    class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50"
+                    hx-get="/returns/?page={{ page + 1 }}&search={{ search or '' }}&status_filter={{ status_filter or '' }}&reason_filter={{ reason_filter or '' }}"
+                    hx-target="#page-content"
+                    hx-swap="innerHTML"
+                >
+                    Next
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

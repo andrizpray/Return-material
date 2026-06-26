@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+
+{% block title %}Return #{{ return.id }} - Return Material Manager{% endblock %}
+
+{% block page_title %}Return Detail #{{ return.id }}{% endblock %}
+
+{% block content %}
+<div class="space-y-6 max-w-4xl">
+
+    <!-- Back Button -->
+    <a
+        href="/returns/"
+        hx-get="/returns/"
+        hx-target="#page-content"
+        hx-swap="innerHTML"
+        class="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-primary-600 transition-colors"
+    >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Back to List
+    </a>
+
+    <!-- Return Info Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-900">Return Information</h3>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                {% if return.status == 'pending' %}bg-yellow-100 text-yellow-800
+                {% elif return.status == 'approved' %}bg-green-100 text-green-800
+                {% elif return.status == 'rejected' %}bg-red-100 text-red-800
+                {% elif return.status == 'processed' %}bg-blue-100 text-blue-800
+                {% endif %}">
+                {{ return.status|capitalize }}
+            </span>
+        </div>
+        <div class="px-6 py-4">
+            <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                <div>
+                    <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Lot Reference</dt>
+                    <dd class="mt-1 text-sm font-mono text-gray-900">{{ return.lot_ref }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ return.qty }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ return.reason.name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Condition</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ return.condition or '-' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Destination</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ return.destination|capitalize if return.destination else '-' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Note</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ return.note or '-' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ return.created_at.strftime('%d %b %Y %H:%M') }}</dd>
+                </div>
+                <div>
+                    <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">Updated At</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ return.updated_at.strftime('%d %b %Y %H:%M') }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    <!-- Status Action Form (only if not processed) -->
+    {% if return.status != 'processed' %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Update Status</h3>
+        </div>
+        <div class="px-6 py-4">
+            <form
+                hx-post="/returns/{{ return.id }}/status"
+                hx-target="#page-content"
+                hx-swap="innerHTML"
+                class="space-y-4"
+            >
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Status -->
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Action</label>
+                        <select
+                            id="status"
+                            name="status"
+                            required
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"
+                        >
+                            {% if return.status == 'pending' %}
+                            <option value="approved">Approve</option>
+                            <option value="rejected">Reject</option>
+                            {% elif return.status == 'approved' %}
+                            <option value="processed">Process</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <!-- Destination -->
+                    <div>
+                        <label for="destination" class="block text-sm font-medium text-gray-700 mb-1">Destination</label>
+                        <select
+                            id="destination"
+                            name="destination"
+                            class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"
+                        >
+                            <option value="">Select destination...</option>
+                            <option value="stock" {{ 'selected' if return.destination == 'stock' }}>Stock</option>
+                            <option value="scrap" {{ 'selected' if return.destination == 'scrap' }}>Scrap</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Note -->
+                <div>
+                    <label for="note" class="block text-sm font-medium text-gray-700 mb-1">Note</label>
+                    <textarea
+                        id="note"
+                        name="note"
+                        rows="3"
+                        class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Optional note for this status change..."
+                    >{{ return.note or '' }}</textarea>
+                </div>
+
+                <div class="flex justify-end">
+                    <button
+                        type="submit"
+                        class="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
+                    >
+                        Submit
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Attachments Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Attachments</h3>
+        </div>
+        <div class="px-6 py-4 space-y-4">
+            <!-- Existing Attachments -->
+            {% if return.attachments %}
+            <div class="space-y-2">
+                {% for att in return.attachments %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div class="flex items-center gap-3">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">{{ att.original_name or att.file_path.split('/')[-1] }}</p>
+                            <p class="text-xs text-gray-500">Uploaded {{ att.uploaded_at.strftime('%d %b %Y %H:%M') }}</p>
+                        </div>
+                    </div>
+                    <a
+                        href="/uploads/{{ att.file_path }}"
+                        target="_blank"
+                        class="text-xs text-primary-600 hover:text-primary-700 font-medium"
+                    >
+                        Download
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-500">No attachments uploaded yet.</p>
+            {% endif %}
+
+            <!-- Upload Form -->
+            <form
+                hx-post="/returns/{{ return.id }}/upload"
+                hx-target="#page-content"
+                hx-swap="innerHTML"
+                enctype="multipart/form-data"
+                class="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-primary-400 transition-colors"
+            >
+                <div class="flex flex-col items-center gap-2">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                    </svg>
+                    <label class="cursor-pointer">
+                        <span class="text-sm text-gray-600">
+                            <span class="font-medium text-primary-600 hover:text-primary-500">Choose file</span> or drag and drop
+                        </span>
+                        <input type="file" name="file" class="sr-only" required accept="image/*,.pdf,.doc,.docx"/>
+                    </label>
+                    <p class="text-xs text-gray-400">PDF, DOC, PNG, JPG up to 10MB</p>
+                </div>
+                <div class="mt-3 flex justify-end">
+                    <button
+                        type="submit"
+                        class="inline-flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors"
+                    >
+                        Upload
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Audit Log Timeline -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-900">Audit Log</h3>
+        </div>
+        <div class="px-6 py-4">
+            {% if return.audit_logs %}
+            <div class="relative">
+                <!-- Timeline line -->
+                <div class="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200"></div>
+                <div class="space-y-4">
+                    {% for log in return.audit_logs|sort(attribute='created_at', reverse=True) %}
+                    <div class="relative pl-10">
+                        <!-- Dot -->
+                        <div class="absolute left-2.5 top-1.5 w-3 h-3 rounded-full border-2 border-white shadow
+                            {% if 'approved' in log.action %}bg-green-500
+                            {% elif 'rejected' in log.action %}bg-red-500
+                            {% elif 'processed' in log.action %}bg-blue-500
+                            {% elif 'created' in log.action %}bg-yellow-500
+                            {% else %}bg-gray-400
+                            {% endif %}">
+                        </div>
+                        <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <p class="text-sm font-medium text-gray-900">{{ log.action }}</p>
+                                <time class="text-xs text-gray-500">{{ log.created_at.strftime('%d %b %Y %H:%M') }}</time>
+                            </div>
+                            {% if log.note %}
+                            <p class="mt-1 text-sm text-gray-600">{{ log.note }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-500">No audit log entries yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

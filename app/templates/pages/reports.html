@@ -1,0 +1,153 @@
+{% set active_page = 'reports' %}
+{% extends 'base.html' %}
+
+{% block title %}Reports - Return Material Manager{% endblock %}
+
+{% block page_title %}Reports{% endblock %}
+
+{% block head %}
+<style>
+    .chart-container { position: relative; height: 350px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+    <!-- Monthly Returns Chart -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">Monthly Returns</h3>
+            <p class="text-sm text-gray-500 mt-0.5">Return volume over the past months</p>
+        </div>
+        <div class="p-6">
+            {% if monthly %}
+            <div class="chart-container">
+                <canvas id="monthlyChart"></canvas>
+            </div>
+            {% else %}
+            <div class="flex flex-col items-center justify-center py-16 text-gray-400">
+                <svg class="w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <p class="font-medium">No monthly data available</p>
+                <p class="text-sm mt-1">Data will populate as returns are recorded</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Top Reasons -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-semibold text-gray-800">Top Return Reasons</h3>
+            <p class="text-sm text-gray-500 mt-0.5">Most frequent reasons for material returns</p>
+        </div>
+        <div class="p-6">
+            {% if top_reasons %}
+            <div class="space-y-4">
+                {% set max_count = top_reasons[0].count if top_reasons else 1 %}
+                {% for reason in top_reasons %}
+                <div class="flex items-center gap-4">
+                    <div class="w-48 flex-shrink-0">
+                        <p class="text-sm font-medium text-gray-700 truncate" title="{{ reason.name }}">{{ reason.name }}</p>
+                    </div>
+                    <div class="flex-1">
+                        <div class="w-full bg-gray-100 rounded-full h-6 overflow-hidden">
+                            <div class="bg-primary-500 h-6 rounded-full flex items-center justify-end pr-3 transition-all duration-500"
+                                 style="width: {{ (reason.count / max_count * 100) | round(1) }}%">
+                                <span class="text-xs font-bold text-white">{{ reason.count }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-12 text-right flex-shrink-0">
+                        <span class="text-sm font-semibold text-gray-600">{{ reason.count }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="flex flex-col items-center justify-center py-16 text-gray-400">
+                <svg class="w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                </svg>
+                <p class="font-medium">No reason data available</p>
+                <p class="text-sm mt-1">Reasons will appear as returns are logged</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% if monthly %}
+<script>
+(function() {
+    const monthNames = [
+        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+
+    const data = {{ monthly | tojson }};
+    const labels = data.map(d => monthNames[d.month - 1] + ' ' + d.year);
+    const counts = data.map(d => d.count);
+
+    const ctx = document.getElementById('monthlyChart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Returns',
+                data: counts,
+                backgroundColor: 'rgba(20, 184, 166, 0.7)',
+                borderColor: 'rgba(13, 148, 136, 1)',
+                borderWidth: 1,
+                borderRadius: 6,
+                hoverBackgroundColor: 'rgba(13, 148, 136, 0.9)'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#134e4a',
+                    titleFont: { size: 13 },
+                    bodyFont: { size: 12 },
+                    padding: 10,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(ctx) {
+                            return ctx.parsed.y + ' return(s)';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1,
+                        font: { size: 12 },
+                        color: '#6b7280'
+                    },
+                    grid: { color: '#f3f4f6' }
+                },
+                x: {
+                    ticks: {
+                        font: { size: 11 },
+                        color: '#6b7280',
+                        maxRotation: 45,
+                        minRotation: 0
+                    },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+})();
+</script>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% set active_page = 'berita_acara' %}
+
+{% block title %}Buat Berita Acara - Return Material Manager{% endblock %}
+{% block page_title %}Buat Berita Acara{% endblock %}
+
+{% block content %}
+<form method="POST" action="/berita-acara/create" class="space-y-6 max-w-4xl">
+
+    <!-- Section I: Info Dokumen -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Section I — Info Dokumen</h3>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nomor BAP <span class="text-red-500">*</span></label>
+                <input type="text" name="nomor_bap" value="{{ default_nomor }}" required
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal <span class="text-red-500">*</span></label>
+                <input type="date" name="tanggal" value="{{ now.strftime('%Y-%m-%d') }}" required
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Hal</label>
+                <input type="text" name="hal" value="Broke / Return / Damage Product / Out Spec / Etc"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Ditujukan Kepada</label>
+                <input type="text" name="ditujukan_kepada" value="QC"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">CC</label>
+                <input type="text" name="cc" placeholder="-"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section: Info Customer & SJ -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Info Customer & Surat Jalan</h3>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nama Customer <span class="text-red-500">*</span></label>
+                <input type="text" name="customer_name" required placeholder="PT Nama Customer"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">No. SJ / Tanggal Kirim</label>
+                <div class="flex gap-2">
+                    <input type="text" name="no_sj" placeholder="SHPRL..."
+                           class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                    <input type="date" name="tanggal_sj"
+                           class="w-40 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">No. SJ Return</label>
+                <input type="text" name="no_sj_return" placeholder="-"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+            </div>
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-1">Alamat Customer</label>
+                <textarea name="customer_address" rows="2"
+                          class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="Alamat lengkap customer..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section III: Items -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Section III — Data Produk</h3>
+            <button type="button" id="add-item-btn"
+                    class="inline-flex items-center gap-1 text-xs font-medium text-primary-600 hover:text-primary-700">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Tambah Item
+            </button>
+        </div>
+        <div class="px-6 py-4">
+            <div id="items-container" class="space-y-3">
+                <!-- Default: show all pending returns if no selection -->
+                {% set show_returns = [] %}
+                {% for ret in returns %}
+                    {% if ret.id in selected_ids or not selected_ids %}
+                        {% if show_returns.append(ret) %}{% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {% for ret in show_returns[:5] %}
+                <div class="item-row grid grid-cols-12 gap-2 items-end border-b border-gray-100 pb-3">
+                    <input type="hidden" name="return_ids" value="{{ ret.id }}"/>
+                    <div class="col-span-3">
+                        <label class="block text-xs text-gray-500 mb-1">Lot ID</label>
+                        <input type="text" value="{{ ret.lot_ref }}" readonly
+                               class="w-full rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs text-gray-600"/>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs text-gray-500 mb-1">Qty (Kg)</label>
+                        <input type="text" value="{{ ret.qty }}" readonly
+                               class="w-full rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs text-gray-600"/>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs text-gray-500 mb-1">Jenis Barang</label>
+                        <input type="text" name="jenis_barangs" placeholder="MP150 - 1250"
+                               class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs text-gray-500 mb-1">Rew ID</label>
+                        <input type="text" name="rew_ids" placeholder="N.xx.xxxx.xxxx"
+                               class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-xs text-gray-500 mb-1">Keterangan</label>
+                        <input type="text" name="keterangans" value="{{ ret.condition or '' }}"
+                               placeholder="Gulungan tidak rata..."
+                               class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+                    </div>
+                    <div class="col-span-1">
+                        <button type="button" onclick="this.closest('.item-row').remove()"
+                                class="text-red-400 hover:text-red-600 p-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+
+                {% if not show_returns %}
+                <p class="text-sm text-gray-400 text-center py-4">
+                    Tidak ada return yang dipilih. <a href="/returns/" class="text-primary-600 hover:underline">Buat return dulu</a>.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Section IV: Tanda Tangan -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Section IV — Tanda Tangan</h3>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Admin Delivery</label>
+                <input type="text" name="admin_delivery"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Karu Delivery</label>
+                <input type="text" name="karu_delivery"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Kabag SCM</label>
+                <input type="text" name="kabag_scm"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+            </div>
+            <div>
+                <label class="block text-xs text-gray-500 mb-1">Sopir / Nopol</label>
+                <input type="text" name="sopir_nopol" placeholder="LNI - IDI / D 9736 AI"
+                       class="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500"/>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center justify-end gap-3">
+        <a href="/berita-acara/"
+           class="px-4 py-2 rounded-lg text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 transition-colors">
+            Batal
+        </a>
+        <button type="submit"
+                class="inline-flex items-center gap-2 bg-primary-600 text-white px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-700 transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Generate Berita Acara
+        </button>
+    </div>
+</form>
+
+<script>
+// Add blank item row
+document.getElementById('add-item-btn').addEventListener('click', function() {
+    const container = document.getElementById('items-container');
+    // Remove "no items" message if present
+    const emptyMsg = container.querySelector('p');
+    if (emptyMsg) emptyMsg.remove();
+
+    const row = document.createElement('div');
+    row.className = 'item-row grid grid-cols-12 gap-2 items-end border-b border-gray-100 pb-3';
+    row.innerHTML = `
+        <input type="hidden" name="return_ids" value=""/>
+        <div class="col-span-3">
+            <label class="block text-xs text-gray-500 mb-1">Lot ID</label>
+            <select name="_return_id_select" onchange="this.closest('.item-row').querySelector('input[name=return_ids]').value=this.value"
+                    class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500">
+                <option value="">Pilih return...</option>
+                {% for ret in returns %}
+                <option value="{{ ret.id }}">{{ ret.lot_ref }} ({{ ret.qty }} Kg)</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">Qty (Kg)</label>
+            <input type="text" readonly placeholder="auto"
+                   class="w-full rounded-lg border border-gray-200 bg-gray-50 px-2 py-1.5 text-xs text-gray-600"/>
+        </div>
+        <div class="col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">Jenis Barang</label>
+            <input type="text" name="jenis_barangs" placeholder="MP150 - 1250"
+                   class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+        </div>
+        <div class="col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">Rew ID</label>
+            <input type="text" name="rew_ids" placeholder="N.xx.xxxx.xxxx"
+                   class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+        </div>
+        <div class="col-span-2">
+            <label class="block text-xs text-gray-500 mb-1">Keterangan</label>
+            <input type="text" name="keterangans" placeholder="Gulungan tidak rata..."
+                   class="w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs focus:ring-primary-500 focus:border-primary-500"/>
+        </div>
+        <div class="col-span-1">
+            <button type="button" onclick="this.closest('.item-row').remove()"
+                    class="text-red-400 hover:text-red-600 p-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+            </button>
+        </div>
+    `;
+    container.appendChild(row);
+});
+</script>
+{% endblock %}
